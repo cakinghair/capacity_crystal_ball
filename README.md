@@ -7,7 +7,7 @@
 6. 架起來的完整網站可直接至 https://cakinghair.pythonanywhere.com/loading/ 查看。
 ###
 1. This project aimed to optimize machine capacity allocation by minimizing the number of conversions while fulfilling orders, and improve efficiency and profit for the company.
-2. Used Gurobipy to solve the large-scale linear programming problem fast and precisely, thus enhancing enginners' work efficiency.
+2. Used Gurobipy to solve the large-scale linear programming problem fast and precisely, and thus enhance the enginners' work efficiency.
 3. Used MySQL databases to store order and material information.
 4. Used Django as the MVC framework to integrate the frontend and backend and the database, and introduce member login and registration functionalities.
 5. Used Bootstrap and JavaScript to establish clear analysis reports.
