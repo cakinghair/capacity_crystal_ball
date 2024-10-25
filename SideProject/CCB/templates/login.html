@@ -1,0 +1,55 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+  <head>
+    <title>Capacity Crystal Ball</title>
+    <meta charset="utf-8">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" 
+    integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="shortcut icon" href="{% static 'CCB.ico' %}" type="image/x-icon">
+  </head>
+
+  <body style="background-color:Aquamarine;">
+    <div class="container-fluid" style="min-width:1500px;">
+      <div class="row">
+        <div class="col-4 h6 mt-2" style="position:sticky; top:0; align-self:start;">
+          <img src="{% static 'CCB.ico' %}" width="60" style="vertical-align:-100%;"/>
+          <a class="h6" href="../loading">Capacity Crystal Ball</a>
+        </div>
+      </div>
+
+      <div class="row mt-5">
+        <div class="col-4"></div>
+        <div class="col-4" style="background-color:White; border-radius:20px;">
+          <div class="row h4 my-4"><div class="col mx-3">Sign in</div></div>
+          {% if error_message %}
+            <div class="alert alert-danger" id="error_message">{{ error_message }}</div>
+          {% endif %}
+          <form method="post"> {% csrf_token %}
+            <div class="row my-4">
+              <div class="col-1 mx-3"><label for="username">username:</label></div>
+              <div class="col mx-5"><input class="form-control" type="text" name="username" style="height:30px;" id="username"
+              value="{{ username }}"></div>
+            </div>
+            <div class="row my-4">
+              <div class="col-1 mx-3"><label for="password">password:</label></div>
+              <div class="col mx-5"><input class="form-control" type="password" name="password" style="height:30px;" id="password"></div>
+            </div>
+            <div class="row my-4">
+              <div class="col" style="text-align:right;"><input type="submit" value="Login" class="btn btn-primary mx-5"></div>
+            </div>
+            <div class="row my-4">
+              <div class="col mx-3">
+                <i style="font-size:10pt;">Don't have an account yet?
+                <a href="{% url 'register_page' %}?next={% firstof request.path '/' %}" style="font-size:12pt;"><b>Sign up</b></a></i>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,15 @@
+# created by virtualenv automatically
+
+Lib/
+Scripts/
+pyvenv.cfg
+share/
+__pycache__/
+*.py[cod]
+CCB/migrations/__pycache__/
+SideProject/__pycache__/
+CCB/__pycache__/
+venv/
+Envs/
+*.log
+*.env
