@@ -218,12 +218,12 @@ def product_select(request):
 
 def supply_cum_chart(request):
     input = json.loads(request.body)
-    workweek_list = [item for item in workweek_list if current_workweek < item <= int(input.get('end_week'))]
+    workweek_list_filtered = [item for item in workweek_list if current_workweek < item <= int(input.get('end_week'))]
     scenario = input.get('scenario')
     design = input.get('product')
     AOUTGoMa(scenario)
     data = {
-        "workweek": workweek_list,
+        "workweek": workweek_list_filtered,
         "product": [
             {
                 "name": product_parameters[design].name,
@@ -238,12 +238,12 @@ def supply_cum_chart(request):
 
 def aout_gap_table(request):
     input = json.loads(request.body)
-    workweek_list = [item for item in workweek_list if current_workweek < item <= int(input.get('end_week'))]
+    workweek_list_filtered = [item for item in workweek_list if current_workweek < item <= int(input.get('end_week'))]
     scenario = input.get('scenario')
     design = input.get('product')
     AOUTGoMa(scenario)
     data = {
-        'workweek': workweek_list,
+        'workweek': workweek_list_filtered,
         'supply_need': product_parameters[design].aoutgoma['supply_need'],
         'supply_projection': product_parameters[design].aoutgoma['supply_projection'],
         'cum_supply_need': product_parameters[design].aoutgoma['supply_need_cum'],
