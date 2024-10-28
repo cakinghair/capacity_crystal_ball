@@ -13,7 +13,16 @@
 5. Used Bootstrap and JavaScript to establish clear analysis reports.
 6. The complete website can be viewed at https://cakinghair.pythonanywhere.com/loading/.
 ## 成果展示 Demo
-
+1. 以週為單位，以直條圖顯示各產品須產出之數量總和，以檢視訂單集中程度。 Uses a bar chart to display the sums of demand quantity for each product by week, and visualize the distribution of orders.
+![image](https://github.com/user-attachments/assets/634b9252-0717-48c6-995f-24dc48224549)
+2. 以面積圖顯示每週預計來料量，與訂單需求做比對，檢視來料供給是否不足或過剩。 Uses an area chart to compare the material arrival plan with the order demands, and confirm if the supply is insufficient or excessive.
+![image](https://github.com/user-attachments/assets/aeae7897-9e35-489d-87d5-7cbbf0787552)
+3. 根據使用者輸入可用機台總數，計算出最佳分配策略，以線圖顯示機台數變化。 Based on the number of available machines input by the user, calculates the optimal allocation strategy and visualizes the result in a line chart.
+![image](https://github.com/user-attachments/assets/e6520115-c6b6-41d5-877f-14cd2f618b0b)
+4. 以表格顯示訂單詳細資訊。根據前面幾頁的分析結果，將來料不足、或機台產能不足致無法出貨的訂單做標註，正常訂單則標註預計可出貨週。考慮易使用性，表格亦附有篩選、下載功能。 Lists the detailed information on each order. According to the analysis results in the previous pages, remark risked orders with the reasons (material or capacity constraint), while remarking normal orders with expected shipment week. To be more user-friendly, the table also provides filtering and download funcions.
+![image](https://github.com/user-attachments/assets/9e790be5-4120-4314-9dca-7b2f166cdd28)
+5. (登入才可使用) 現實情況中可能會有多個版本的來料計畫，使用者可自行建立版本，編輯數量，套用至網站做產能分析。 (Login required) In actual production circumstances, there may be multiple versions of material plans. We enable users to create and edit their own scenarios, and apply them to the website for capacity analysis.
+![image](https://github.com/user-attachments/assets/e8ec4d88-0079-4cd0-81b1-be0180e89e06)
 ## 檔案 Files
 * `manage.py` 啟動網頁介面的主程式。
 * `models.py` 管理各資料庫。
