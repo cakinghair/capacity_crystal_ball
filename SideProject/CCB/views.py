@@ -5,7 +5,6 @@ from django.http import JsonResponse, HttpResponseRedirect
 import math
 import gurobipy
 from gurobipy import GRB
-from django.views.decorators.csrf import csrf_exempt
 import json
 from django.contrib import auth
 from django import forms
@@ -101,19 +100,20 @@ order_db = order_db_list
 product_list = list(sorted(set([order.product_name for order in order_db])))
 #
 
-# Cook aout database
-aout_db = Aout.objects.all()
-for item in aout_db:
-    if item.scenario.strip() == 'Standard':
-        keys = list(workweek_reference.keys())
-        origin_index = keys.index(202427)
-        item_index = keys.index(item.workweek)
-        current_index = keys.index(current_workweek)
-        item.workweek = keys[current_index + (item_index - origin_index)]
+def CookAoutDB():
+    aout_db = Aout.objects.all()
+    for item in aout_db:
+        if item.scenario.strip() == 'Standard':
+            keys = list(workweek_reference.keys())
+            origin_index = keys.index(202427)
+            item_index = keys.index(item.workweek)
+            current_index = keys.index(current_workweek)
+            item.workweek = keys[current_index + (item_index - origin_index)]
 
-        if item.workweek == GetNextKey(workweek_reference, current_workweek):
-            item.quantity += product_parameters[item.product_name.strip()].wip
-#
+            if item.workweek == GetNextKey(workweek_reference, current_workweek):
+                item.quantity += product_parameters[item.product_name.strip()].wip
+    return aout_db
+aout_db = CookAoutDB()
 
 def loading_page(request):
     return render(request, 'loading.html')
@@ -126,6 +126,7 @@ def basic_info(request):
     return JsonResponse(data)
 
 def scenario_info(request):
+    aout_db = CookAoutDB()
     scenario_list = list(set([item.scenario.strip() for item in aout_db]))
     scenario_pattern = [{
         'scenario': item.scenario.strip(),
@@ -460,74 +461,81 @@ def register_page(request):
     return render(request, 'register.html', {'form': form})
 
 @login_required
-def new_scenario(request):
-    if request.method == 'POST':
-        form_data = json.loads(request.body)
-        for row in range(len(form_data)):
-            if form_data[row].get('scenario').strip() == '':
-                return JsonResponse({'message': 'Empty scenario name'}, safe=False)
-            elif form_data[row].get('scenario').strip() in list(set([item.scenario.strip() for item in aout_db])):
-                return JsonResponse({'message': 'A scenario with the given name already exists.'}, safe=False)
-            elif form_data[row].get('quantity').strip().isdigit():
-                if int(form_data[row].get('quantity').strip()) < 0:
-                    return JsonResponse({'message': 'Please confirm if all quantity inputs are valid numbers.'}, safe=False)
-            else:
+def CreateScenario(request):
+    form_data = json.loads(request.body)
+    for row in range(len(form_data)):
+        if form_data[row].get('scenario').strip() == '':
+            return JsonResponse({'message': 'Empty scenario name'}, safe=False)
+        elif form_data[row].get('scenario').strip() in list(set([item.scenario.strip() for item in aout_db])):
+            return JsonResponse({'message': 'A scenario with the given name already exists.'}, safe=False)
+        elif form_data[row].get('quantity').strip().isdigit():
+            if int(form_data[row].get('quantity').strip()) < 0:
                 return JsonResponse({'message': 'Please confirm if all quantity inputs are valid numbers.'}, safe=False)
-        for row in range(len(form_data)):
-            try:
-                Aout.objects.create(
-                    workweek = int(form_data[row].get('workweek')),
-                    product_name = form_data[row].get('product'),
-                    quantity = int(form_data[row].get('quantity').strip()),
-                    scenario = form_data[row].get('scenario').strip(),
-                    creator = form_data[row].get('creator').strip(),
-                )
-            except:
-                return JsonResponse({'message': 'Unexpected errors. Please try again later.'}, safe=False)
+        else:
+            return JsonResponse({'message': 'Please confirm if all quantity inputs are valid numbers.'}, safe=False)
+    for row in range(len(form_data)):
+        try:
+            Aout.objects.create(
+                workweek = int(form_data[row].get('workweek')),
+                product_name = form_data[row].get('product'),
+                quantity = int(form_data[row].get('quantity').strip()),
+                scenario = form_data[row].get('scenario').strip(),
+                creator = form_data[row].get('creator').strip(),
+            )
+        except:
+            return JsonResponse({'message': 'Unexpected errors. Please try again later.'}, safe=False)
     return JsonResponse({'message': 'Successfully saved the new scneario and its pattern into the database.'}, safe=False)
 
-@login_required
-def delete_scenario(request):
+def scenario(request):
+    if request.method == 'GET':
+        return scenario_info(request)
     if request.method == 'POST':
-        delete_request = json.loads(request.body)
-        for item in aout_db:
-            if item.scenario.strip() == delete_request['scenario']:
-                if item.creator.strip() != delete_request['user']:
-                    return JsonResponse({'message': 'You can only edit or delete scenarios that you created.'}, safe=False)
-        obj = Aout.objects.filter(scenario=delete_request['scenario'])
-        obj.delete()
+        return CreateScenario(request)
+    if request.method == 'DELETE':
+        return DeleteScenario(request)
+    if request.method == 'PATCH':
+        return EditScenario(request)
+
+@login_required
+def DeleteScenario(request):
+    delete_request = json.loads(request.body)
+    for item in aout_db:
+        if item.scenario.strip() == delete_request['scenario']:
+            if item.creator.strip() != delete_request['user']:
+                return JsonResponse({'message': 'You can only edit or delete scenarios that you created.'}, safe=False)
+    obj = Aout.objects.filter(scenario=delete_request['scenario'])
+    obj.delete()
     return JsonResponse({'message': 'Successfully deleted the scenario.'}, safe=False)
 
 @login_required
-def save_changes(request):
-    if request.method == 'POST':
-        target = json.loads(request.body)['target']
-        requestor = json.loads(request.body)['requestor']
-        form_data = json.loads(request.body)['data']
-        scenario_list = list(set([item.scenario.strip() for item in aout_db]))
-        scenario_list.remove(target)
-        for row in range(len(form_data)):
-            if form_data[row].get('scenario').strip() == '':
-                return JsonResponse({'message': 'Empty scenario name'}, safe=False)
-            elif form_data[row].get('scenario').strip() in scenario_list:
-                return JsonResponse({'message': 'A scenario with the given name already exists.'}, safe=False)
-            elif form_data[row].get('quantity').strip().isdigit():
-                if int(form_data[row].get('quantity').strip()) < 0:
-                    return JsonResponse({'message': 'Please confirm if all quantity inputs are valid numbers.'}, safe=False)
-            else:
+def EditScenario(request):
+    target = json.loads(request.body)['target']
+    requestor = json.loads(request.body)['requestor']
+    form_data = json.loads(request.body)['data']
+    scenario_list = list(set([item.scenario.strip() for item in aout_db]))
+    scenario_list.remove(target)
+    for row in range(len(form_data)):
+        if form_data[row].get('scenario').strip() == '':
+            return JsonResponse({'message': 'Empty scenario name'}, safe=False)
+        elif form_data[row].get('scenario').strip() in scenario_list:
+            return JsonResponse({'message': 'A scenario with the given name already exists.'}, safe=False)
+        elif form_data[row].get('quantity').strip().isdigit():
+            if int(form_data[row].get('quantity').strip()) < 0:
                 return JsonResponse({'message': 'Please confirm if all quantity inputs are valid numbers.'}, safe=False)
-        for row in range(len(form_data)):
-            try:
-                obj = Aout.objects.get(scenario = target,
-                                 workweek = int(form_data[row].get('workweek')),
-                                 product_name = form_data[row].get('product')
-                                 )
-                if obj.creator != requestor:
-                    return JsonResponse({'message': 'You can only edit or delete scenarios that you created.'}, safe=False)
-                else:
-                    obj.quantity = int(form_data[row].get('quantity').strip())
-                    obj.scenario = form_data[row].get('scenario').strip()
-                    obj.save()
-            except:
-                return JsonResponse({'message': 'Unexpected errors. Please try again later.'}, safe=False)
+        else:
+            return JsonResponse({'message': 'Please confirm if all quantity inputs are valid numbers.'}, safe=False)
+    for row in range(len(form_data)):
+        try:
+            obj = Aout.objects.get(scenario = target,
+                             workweek = int(form_data[row].get('workweek')),
+                             product_name = form_data[row].get('product')
+                             )
+            if obj.creator != requestor:
+                return JsonResponse({'message': 'You can only edit or delete scenarios that you created.'}, safe=False)
+            else:
+                obj.quantity = int(form_data[row].get('quantity').strip())
+                obj.scenario = form_data[row].get('scenario').strip()
+                obj.save()
+        except:
+            return JsonResponse({'message': 'Unexpected errors. Please try again later.'}, safe=False)
     return JsonResponse({'message': 'Successfully saved the new scneario and its pattern into the database.'}, safe=False)

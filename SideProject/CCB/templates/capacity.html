@@ -6,7 +6,7 @@
     <title>Capacity Crystal Ball</title>
     <meta charset="utf-8">
     <meta name="csrf-token" content="{{ csrf_token }}">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" 
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
     integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
@@ -16,17 +16,17 @@
   </head>
 
   <body style="background-color:WhiteSmoke;">
-    <div class="col text-center" id="status" 
+    <div class="col text-center" id="status"
           style="display:none; height:100%; opacity:0.5; background-color:#444; position:absolute; z-index:999;">
       <div class="spinner-border text-light" style="width:128px; height:128px; margin-top:15%;"></div>
     </div>
 
-    <div class="container-fluid" style="min-width:1500px;">  
+    <div class="container-fluid" style="min-width:1500px;">
       <div class="row">
         <div class="col-2 h6 mt-2" style = "position:sticky; top:0; align-self:start;">
           <img src="{% static 'CCB.ico' %}" width="60" style="vertical-align:-100%;"/>
           <a class="h6" href="../capacity">Capacity Crystal Ball</a>
-          
+
           <ul class="nav flex-column nav-tabs mt-4">
             <li class="nav-item">
               <a class="nav-link" href="../loading">Order Demand by Week</a>
@@ -134,7 +134,7 @@
       }
 
       document.addEventListener('DOMContentLoaded', function() {
-        fetch('api/workweek_select/')
+        fetch('api/workweek/')
         .then(response => response.json())
         .then(data => {
           var el = document.getElementById('WorkweekSelect');
@@ -179,7 +179,7 @@
       })
 
       var ScenarioRefresh = function(scenario_name) {
-        fetch('api/scenario_select/')
+        fetch('api/scenario/')
         .then(response => response.json())
         .then(data => {
           var el = document.getElementById('ScenarioSelect');
@@ -203,8 +203,8 @@
                 else {
                   str += "<option value=" + data.list[i] + ">" + data.list[i] + "</option>";
                 }
-              } 
-            } 
+              }
+            }
           }
           else {
             for (let i=0; i<data.list.length; i++) {
@@ -214,7 +214,7 @@
               else {
                 str += "<option value=" + data.list[i] + ">" + data.list[i] + "</option>";
               }
-            } 
+            }
           }
           el.innerHTML= str;
 
@@ -381,7 +381,7 @@
       var LegendClickHandler = function(e, legendItem) {
         var index = legendItem.datasetIndex;
         var ci = this.chart;
-        
+
         if (ci.getDatasetMeta(index).hidden === null) {
           var OthersInDisplay = 0;
           for (item in ci.data.datasets) {
@@ -423,7 +423,7 @@
 
       var LoadPattern = function(scenario) {
         ToggleLoading(true);
-        fetch('api/scenario_select/')
+        fetch('api/scenario/')
         .then(response => response.json())
         .then(data => {
           var scenario_rename = document.getElementById('ScenarioName');
@@ -465,7 +465,7 @@
             'quantity': form_quantity[i].value === ''? '0' : form_quantity[i].value,
           })
         }
-        fetch("api/save_new_scenario/", {
+        fetch("api/scenario/", {
           method: "POST",
           body: JSON.stringify(form_data),
           headers: {
@@ -483,8 +483,8 @@
 
       var delete_scenario = document.getElementById('SureToDelete');
       delete_scenario.addEventListener('click', function() {
-        fetch("api/delete_scenario/", {
-          method: "POST",
+        fetch("api/cenario/", {
+          method: "DELETE",
           body: JSON.stringify({
             'scenario': document.getElementById('ScenarioName').value,
             'user': document.getElementById('CurrentUser').innerHTML,
@@ -527,8 +527,8 @@
             'quantity': form_quantity[i].value === ''? '0' : form_quantity[i].value,
           })
         }
-        fetch('api/save_changes/', {
-          method: 'POST',
+        fetch('api/scenario/', {
+          method: 'PATCH',
           body: JSON.stringify({
             'target': document.getElementById('ScenarioSelect2').value,
             'requestor': document.getElementById('CurrentUser').innerHTML,

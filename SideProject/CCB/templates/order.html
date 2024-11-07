@@ -6,7 +6,7 @@
     <title>Capacity Crystal Ball</title>
     <meta charset="utf-8">
     <meta name="csrf-token" content="{{ csrf_token }}">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" 
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
     integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" crossorigin="anonymous">
     <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.15.5/dist/bootstrap-table.min.css">
@@ -18,17 +18,17 @@
   </head>
 
   <body style="background-color:WhiteSmoke;">
-    <div class="col text-center" id="status" 
+    <div class="col text-center" id="status"
           style="display:none; height:100%; opacity:0.5; background-color:#444; position:absolute; z-index:999;">
       <div class="spinner-border text-light" style="width:128px; height:128px; margin-top:15%;"></div>
     </div>
-    
-    <div class="container-fluid" style="min-width:1500px;">  
+
+    <div class="container-fluid" style="min-width:1500px;">
       <div class="row">
         <div class="col-2 h6 mt-2" style = "position:sticky; top:0; align-self:start;">
           <img src="{% static 'CCB.ico' %}" width="60" style="vertical-align:-100%;"/>
           <a class="h6" href="../order">Capacity Crystal Ball</a>
-          
+
           <ul class="nav flex-column nav-tabs mt-4">
             <li class="nav-item">
               <a class="nav-link" href="../loading">Order Demand by Week</a>
@@ -120,8 +120,8 @@
 
         <div class="col-8 my-4 ml-5" style="font-weight:normal; font-size:10pt;">
           <a class="btn btn-secondary mb-3" role="button" id="DownloadBtn" style="color:white;">Export as Excel</a>
-          <table class="table table-hover" 
-                  data-toggle="table" 
+          <table class="table table-hover"
+                  data-toggle="table"
                   style="background-color:white;"
                   id="OrderTable">
             <thead>
@@ -160,7 +160,7 @@
       }
 
       document.addEventListener('DOMContentLoaded', function() {
-        req = fetch('api/workweek_select/')
+        req = fetch('api/workweek/')
         .then(response => response.json())
         .then(data => {
           var el = document.getElementById('WorkweekSelect');
@@ -203,7 +203,7 @@
           })
           el2.innerHTML = str2;
         })
-        
+
         ScenarioRefresh('Standard');
 
         if (sessionStorage.getItem('tester_count')) {
@@ -219,9 +219,9 @@
 
         LoadPattern('Standard');
       })
-      
+
       var ScenarioRefresh = function(scenario_name) {
-        fetch('api/scenario_select/')
+        fetch('api/scenario/')
         .then(response => response.json())
         .then(data => {
           var el = document.getElementById('ScenarioSelect');
@@ -245,8 +245,8 @@
                 else {
                   str += "<option value=" + data.list[i] + ">" + data.list[i] + "</option>";
                 }
-              } 
-            } 
+              }
+            }
           }
           else {
             for (let i=0; i<data.list.length; i++) {
@@ -256,7 +256,7 @@
               else {
                 str += "<option value=" + data.list[i] + ">" + data.list[i] + "</option>";
               }
-            } 
+            }
           }
           el.innerHTML= str;
 
@@ -317,7 +317,7 @@
         }
         return Number(str);
       }
-      
+
       var run = document.getElementById('run');
       run.addEventListener('click', function() {
         var end_week = document.getElementById("WorkweekSelect").value;
@@ -334,8 +334,8 @@
           document.getElementById("TesterCount").value = "";
           error.style.display = "";
         }
-      });  
-      
+      });
+
       var order_search = document.getElementById('OrderSearch');
       var product_search = document.getElementById('ProductSearch');
       var week_filter = document.getElementById('WeekFilter');
@@ -366,7 +366,7 @@
           var design_text = item.cells[1].textContent;
           var quantity_text = RollBackQuantityFormat(item.cells[2].textContent);
           var week_text = Number(item.cells[4].textContent);
-          
+
           if (design_keyword === "(Select)") {
             item.style.display = (order_text.indexOf(order_keyword)>-1?1:0) +
                                 (quantity_text>=quantity_keyword?1:0) +
@@ -452,7 +452,7 @@
 
       var LoadPattern = function(scenario) {
         ToggleLoading(true);
-        fetch('api/scenario_select/')
+        fetch('api/scenario/')
         .then(response => response.json())
         .then(data => {
           var scenario_rename = document.getElementById('ScenarioName');
@@ -494,7 +494,7 @@
             'quantity': form_quantity[i].value === ''? '0' : form_quantity[i].value,
           })
         }
-        fetch("api/save_new_scenario/", {
+        fetch("api/scenario/", {
           method: "POST",
           body: JSON.stringify(form_data),
           headers: {
@@ -512,8 +512,8 @@
 
       var delete_scenario = document.getElementById('SureToDelete');
       delete_scenario.addEventListener('click', function() {
-        fetch("api/delete_scenario/", {
-          method: "POST",
+        fetch("api/scenario/", {
+          method: "DELETE",
           body: JSON.stringify({
             'scenario': document.getElementById('ScenarioName').value,
             'user': document.getElementById('CurrentUser').innerHTML,
@@ -556,8 +556,8 @@
             'quantity': form_quantity[i].value === ''? '0' : form_quantity[i].value,
           })
         }
-        fetch('api/save_changes/', {
-          method: 'POST',
+        fetch('api/scenario/', {
+          method: 'PATCH',
           body: JSON.stringify({
             'target': document.getElementById('ScenarioSelect2').value,
             'requestor': document.getElementById('CurrentUser').innerHTML,
