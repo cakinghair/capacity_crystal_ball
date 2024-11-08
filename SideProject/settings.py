@@ -88,7 +88,16 @@ if os.getenv('DJANGO_ENV') == 'production':
         },
     }
 elif os.getenv('DJANGO_ENV') == 'test':
-    DATABASES = dj_database_url.config(default='mysql://root:password@localhost:3306/test_db')
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'test_db',
+            'USER': 'root',
+            'PASSWORD': 'password',
+            'HOST': 'localhost',
+            'PORT': '3306',
+        },
+    }
 
 
 # Password validation
