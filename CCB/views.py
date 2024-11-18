@@ -11,6 +11,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
 
 # Create your views here.
 
@@ -154,6 +155,7 @@ def scenario_info(request):
     }
     return JsonResponse(data)
 
+@csrf_exempt
 def loading_bar_chart(request):
     input = json.loads(request.body)
     workweek_list_filtered = [item for item in workweek_list if current_workweek < item <= int(input.get('end_week'))]
@@ -172,6 +174,7 @@ def loading_bar_chart(request):
     return JsonResponse(data)
 
 def AOUTGoMa(scenario):
+    aout_db = CookAoutDB()
     for design in product_parameters.values():
         design.aoutgoma['supply_need'] = [math.ceil(sum(order.supply_need for order in order_db
                                                 if order.product_name == design.name
@@ -336,6 +339,7 @@ def CapacityAnalysis(product_list, workweek_list, tester_count, scenario):
 def capacity_page(request):
     return render(request, 'capacity.html')
 
+@csrf_exempt
 def allocation_table(request):
     input = json.loads(request.body)
     workweek_list_filtered = [item for item in workweek_list if current_workweek < item <= int(input.get('end_week'))]
@@ -462,6 +466,7 @@ def register_page(request):
 
 @login_required
 def CreateScenario(request):
+    aout_db = CookAoutDB()
     form_data = json.loads(request.body)
     for row in range(len(form_data)):
         if form_data[row].get('scenario').strip() == '':
@@ -498,6 +503,7 @@ def scenario(request):
 
 @login_required
 def DeleteScenario(request):
+    aout_db = CookAoutDB()
     delete_request = json.loads(request.body)
     for item in aout_db:
         if item.scenario.strip() == delete_request['scenario']:
@@ -509,6 +515,7 @@ def DeleteScenario(request):
 
 @login_required
 def EditScenario(request):
+    aout_db = CookAoutDB()
     target = json.loads(request.body)['target']
     requestor = json.loads(request.body)['requestor']
     form_data = json.loads(request.body)['data']
@@ -538,4 +545,4 @@ def EditScenario(request):
                 obj.save()
         except:
             return JsonResponse({'message': 'Unexpected errors. Please try again later.'}, safe=False)
-    return JsonResponse({'message': 'Successfully saved the new scneario and its pattern into the database.'}, safe=False)
+    return JsonResponse({'message': 'Successfully saved pattern changes into the database.'}, safe=False)

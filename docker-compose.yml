@@ -1,0 +1,40 @@
+version: "3"
+
+services:
+  db:
+    image: mysql:8.0.39
+    container_name: ball-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: zunisha5269
+      MYSQL_DATABASE: ball_mysql
+      MYSQL_USER: user
+      MYSQL_PASSWORD: zunisha5269
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - ball-network
+
+  web:
+    build: .
+    container_name: ball-django
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=ball-mysql
+      - DB_NAME=ball_mysql
+      - DB_USER=user
+      - DB_PASSWORD=zunisha5269
+    networks:
+      - ball-network
+
+networks:
+  ball-network:
+    driver: bridge
+
+volumes:
+  mysql_data:

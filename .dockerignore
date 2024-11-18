@@ -1,3 +1,8 @@
+# Git
+*.gitignore
+.git/
+.github/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 CCB/migrations/__pycache__/
@@ -5,6 +10,8 @@ SideProject/__pycache__/
 CCB/__pycache__/
 *.py[cod]
 *$py.class
+*.pyc
+*.pyo
 
 # C extensions
 *.so
@@ -31,7 +38,6 @@ wheels/
 .installed.cfg
 *.egg
 MANIFEST
-test/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
